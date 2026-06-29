@@ -200,12 +200,17 @@ if menu == "🔭 เรดาร์สแกนหุ้น (Dynamic Scan)":
     st.info(f"🌐 เชื่อมต่อกระแสเงินสำเร็จ: พร้อมสแกนหุ้น **{len(all_tickers)}** ตัว (Macro Index: {macro_ticker})")
     
     max_len = max(1, len(all_tickers)) # ป้องกันบั๊กกรณีดึงข้อมูลหุ้นไม่ได้เลย
-    limit = st.slider("จำนวนหุ้นที่จะสแกน (ปรับให้พอดีเพื่อป้องกันการบล็อก):", min_value=1, max_value=max_len, value=min(20, max_len))
+    # ดึงค่า Tickers มาไว้ในขอบเขตการทำงานที่แน่นอน
+    all_tickers = get_set50_tickers() if is_thai else get_sp500_tickers()
+    max_len = max(1, len(all_tickers))
     
-    # ปุ่มเปลี่ยนเป็นสีน้ำเงินตาม CSS
-    if st.button("🌊 เริ่มต้นสแกนหาจุดเข้าซื้อ (Initiate Scan)"):
-        macro_series = get_macro_regime(macro_ticker)
-        results = []
+    limit = st.slider("จำนวนหุ้นที่จะสแกน:", min_value=1, max_value=max_len, value=min(20, max_len))
+    
+    # กำหนด scan_list ตรงนี้เพื่อให้มั่นใจว่ามีค่าเสมอ
+    scan_list = all_tickers[:limit]
+    
+    if st.button("🚀 เริ่มต้นสแกนหาจุดเข้าซื้อ (Initiate Scan)"):
+        # ... โค้ดส่วนที่เหลือของคุณ ...
         
         progress_bar = st.progress(0)
         status_text = st.empty()
