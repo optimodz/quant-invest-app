@@ -103,7 +103,7 @@ if menu == "🔭 เรดาร์สแกนหุ้น":
                 d = calculate_indicators(yf.download(t, period="5y", progress=False))
                 ret, win, n = run_fast_backtest(d, macro_series)
                 last = d.iloc[-1]
-                if float(last['EMA50']) > float(last['EMA200']) and float(last['RSI']) < 65:
+                if float(last['EMA50']) > float(last['EMA200']) and float(last['RSI']) < 75:
                     results.append({"Ticker": t, "Signal": "🟢 BUY", "Net Profit (5y)": f"{ret:+.1f}%", "Win Rate": f"{win:.1f}%"})
             except: continue
         
