@@ -199,8 +199,8 @@ if menu == "🔭 เรดาร์สแกนหุ้น (Dynamic Scan)":
     # แสดงจำนวนหุ้นที่ถูกต้องแล้ว!
     st.info(f"🌐 เชื่อมต่อกระแสเงินสำเร็จ: พร้อมสแกนหุ้น **{len(all_tickers)}** ตัว (Macro Index: {macro_ticker})")
     
-    limit = st.slider("จำนวนหุ้นที่จะสแกน (ปรับให้พอดีเพื่อป้องกันการบล็อก):", 10, len(all_tickers), min(50, len(all_tickers)), 5)
-    scan_list = all_tickers[:limit]
+    max_len = max(1, len(all_tickers)) # ป้องกันบั๊กกรณีดึงข้อมูลหุ้นไม่ได้เลย
+    limit = st.slider("จำนวนหุ้นที่จะสแกน (ปรับให้พอดีเพื่อป้องกันการบล็อก):", min_value=1, max_value=max_len, value=min(20, max_len))
     
     # ปุ่มเปลี่ยนเป็นสีน้ำเงินตาม CSS
     if st.button("🌊 เริ่มต้นสแกนหาจุดเข้าซื้อ (Initiate Scan)"):
