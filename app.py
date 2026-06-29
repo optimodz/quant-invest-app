@@ -216,9 +216,14 @@ if menu == "🔭 เรดาร์สแกนหุ้น (Dynamic Scan)":
         if results:
             df_res = pd.DataFrame(results)
             st.success(f"สแกนเสร็จสิ้น! พบหุ้นที่มีสัญญาณเข้าซื้อตามเกณฑ์สถาบันดังนี้:")
-            st.dataframe(df_res.style.applymap(lambda x: 'color: #00c851' if 'BUY' in str(x) else ('color: #ff4444' if 'DOWN' in str(x) else ''), subset=['Signal']), use_container_width=True)
+            
+            # แก้ไขบั๊ก Pandas เวอร์ชันใหม่ (ใช้ map แทน applymap)
+            try:
+                styled_df = df_res.style.map(lambda x: 'color: #00c851' if 'BUY' in str(x) else ('color: #ff4444' if 'DOWN' in str(x) else ''), subset=['Signal'])
+            except AttributeError:
+                # สำรองไว้เผื่อรันในเครื่องที่ใช้ Pandas เวอร์ชันเก่า
+                styled_df = df_res.style.applymap(lambda x: 'color: #00c851' if 'BUY' in str(x) else ('color: #ff4444' if 'DOWN' in str(x) else ''), subset=['Signal'])
+                
+            st.dataframe(styled_df, use_container_width=True)
         else:
             st.warning("ไม่มีข้อมูลผ่านเกณฑ์ หรือติด Rate Limit")
-
-else:
-    st.info("โหมดพอร์ตจำลอง (ฟังก์ชันเดิมยังคงใช้งานได้ปกติ เพียงแค่เปลี่ยนเมนูด้านข้าง)")
