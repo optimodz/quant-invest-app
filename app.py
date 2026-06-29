@@ -298,8 +298,11 @@ def evaluate_stock_v6(info, df, is_thai_market=False):
     entry_price   = close if rsi < 60 else ema50
 
     # --- Dividend yield สำหรับหุ้นไทย ---
-    div_yield = info.get('dividendYield', 0) or 0
-    div_str   = f" | ปันผล {div_yield*100:.1f}%" if is_thai_market and div_yield > 0 else ""
+    raw_div   = info.get('dividendYield', 0) or 0
+    # yfinance ไม่ consistent: บางตัวส่ง 0.06 (decimal), บางตัวส่ง 6.0 (percent)
+    div_yield = raw_div if raw_div <= 1.0 else raw_div / 100
+    div_yield = min(div_yield, 0.25)   # sanity cap: ปันผลจริงไม่เกิน 25%/ปี
+    div_str   = f" | ปันผล {div_yield*100:.1f}%" if is_thai_market and div_yield > 0.005 else ""
 
     # --- คะแนน Signal (0–5) ---
     score = sum([
@@ -531,7 +534,9 @@ if menu == "🔍 สแกนหุ้น & วางแผนเทรด":
                 )
 
                 # Dividend (หุ้นไทย)
-                div_yield = s.info.get('dividendYield', 0) or 0
+                raw_div   = s.info.get('dividendYield', 0) or 0
+                div_yield = raw_div if raw_div <= 1.0 else raw_div / 100
+                div_yield = min(div_yield, 0.25)
 
                 def fmt(v):
                     return f"{v:,.2f}" if isinstance(v, float) else "-"
@@ -544,7 +549,7 @@ if menu == "🔍 สแกนหุ้น & วางแผนเทรด":
                     "Entry":           fmt(ent),
                     "Target":          fmt(tg),
                     "Stop Loss":       fmt(sl_p),
-                    "Div Yield":       f"{div_yield*100:.1f}%" if div_yield > 0 else "-",
+                    "Div Yield":       f"{div_yield*100:.1f}%" if div_yield > 0.005 else "-",
                     "Win Rate":        f"{win_w:.1f}%" if n_trades > 0 else "N/A",
                     "Trades (10y)":    str(n_trades),
                     "Net Return":      f"{net_ret:+.1f}%",
