@@ -130,11 +130,18 @@ def run_fast_backtest(df, macro_series, initial_capital=100000, risk_pct=0.02):
                 pos = 0
 
     equity[-1] = cash + (pos * c[-1] if pos > 0 else 0)
+    
+    # ดักจับค่า 0 ใน array วันแรกๆ ให้กลายเป็นเงินทุนตั้งต้น (ป้องกันบั๊ก 0/0)
+    equity = np.where(equity == 0, initial_capital, equity)
+    
     ret_pct = ((equity[-1] - initial_capital) / initial_capital) * 100
     win_rate = (wins / trades * 100) if trades > 0 else 0.0
     
+    # คำนวณ MDD แบบปลอดภัย
     peak = np.maximum.accumulate(equity)
-    mdd = np.min((equity - peak) / peak) * 100 if len(equity) > 0 else 0.0
+    with np.errstate(divide='ignore', invalid='ignore'):
+        drawdowns = np.where(peak > 0, (equity - peak) / peak, 0.0)
+    mdd = np.min(drawdowns) * 100 if len(drawdowns) > 0 else 0.0
     
     return ret_pct, win_rate, mdd, trades
 
